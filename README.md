@@ -64,7 +64,7 @@ require('telescope').setup {
 ```
 
 Lists all containers in your Azure Storage account. Press `<CR>` to browse blobs inside a container.
-Keep pressing `<CR>` until you selected the full path to the blob and it will be saved to register, or use `<BS>` to go up a directory. 
+Keep pressing `<CR>` until you selected the full path to the blob and it will be saved to register, or use `<C-b>` to go up a directory. 
 When in a directory, use `<C-u>` to upload a file. When selecting a blob or directory use `<C-d>` to delete. 
 
 ### Key Mappings
@@ -72,7 +72,7 @@ When in a directory, use `<C-u>` to upload a file. When selecting a blob or dire
 Default mappings in the picker:
 
 - `<CR>`: Traverse down directory tree/save the selected blob to register.
-- `<BS>`: Traverse up directory tree
+- `<C-b>`: Traverse up directory tree
 - `<C-d>`: Delete selected blob/directory
 - `<C-u>`: Upload file to current directory
 

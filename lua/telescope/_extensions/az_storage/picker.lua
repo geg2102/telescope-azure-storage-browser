@@ -149,40 +149,49 @@ az_picker.blobs = function(opts)
                                     end
                                 end)
 
-                                map('i', '<BS>', function()
+                                map('i', '<C-b>', function()
                                     local selection = action_state.get_selected_entry()
-                                    local opts = selection.opts
+                                    local current_prefix = selection.opts.prefix or ''
+                                    local is_directory = (selection.type == 'directory')
 
-                                    -- Get the current prefix
-                                    local current_prefix = selection.prefix or ''
+                                    -- If at the root, do nothing
+                                    if current_prefix == '' then
+                                        return
+                                    end
 
-                                    -- Remove the trailing slash if present
+                                    -- Remove trailing slash if it exists
                                     if current_prefix:sub(-1) == '/' then
                                         current_prefix = current_prefix:sub(1, -2)
                                     end
 
-                                    -- Remove the last directory from the prefix to go up one level
-                                    local parent_prefix = current_prefix:gsub('[^/]+/?$', '')
+                                    -- Split the current prefix into segments
+                                    local segments = vim.split(current_prefix, '/')
+
+                                    -- If it's a directory, go up two levels; if it's a file, go up one level
+                                    local levels_up = is_directory and 2 or 1
+
+                                    for i = 1, levels_up do
+                                        if #segments > 0 then
+                                            table.remove(segments)
+                                        end
+                                    end
+
+                                    -- Reconstruct the parent prefix
+                                    local parent_prefix = ''
+                                    if #segments > 0 then
+                                        parent_prefix = table.concat(segments, '/') .. '/'
+                                    end
 
                                     actions.close(prompt_bufnr)
 
-                                    if parent_prefix == '' then
-                                        -- Go back to container selection
-                                        az_utils.select_container(opts, function(container_name)
-                                            az_picker.blobs({
-                                                account_name = opts.account_name,
-                                                container_name = container_name,
-                                            })
-                                        end)
-                                    else
-                                        -- Refresh the picker with the parent prefix
-                                        az_picker.blobs({
-                                            account_name = opts.account_name,
-                                            container_name = selection.container_name,
-                                            prefix = parent_prefix,
-                                        })
-                                    end
+                                    -- Reload the picker at the parent prefix
+                                    az_picker.blobs({
+                                        account_name = selection.opts.account_name,
+                                        container_name = selection.container_name,
+                                        prefix = parent_prefix,
+                                    })
                                 end)
+
 
                                 return true
                             end,
